@@ -30,6 +30,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(br.ifpb.pd.server.BlogServer.class);
+        resources.add(br.ifpb.pd.server.CORSResponseFilter.class);
     }
     
 }
