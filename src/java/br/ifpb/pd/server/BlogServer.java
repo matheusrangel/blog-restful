@@ -88,13 +88,28 @@ public class BlogServer {
     public Response getNoticia(@QueryParam("id") Long id) {
         Noticia n = em.find(Noticia.class, id);
         if (n != null) {
-            String html = "<html><body>"
-                    + "id="+n.getId()
-                    +"<br>titulo="+n.getTitulo()
-                    +"<br>autor="+n.getAutor()
-                    +"<br>conteudo="+n.getConteudo()
-                    +"<br>data="+n.getData()
-                    +"</body></html>";
+            String html = "<html><body><table border='1' align='center'>"
+                    + "<tr>"
+                    + " <th>id</th>"
+                    + " <td>"+n.getId()+"</td>"
+                    + "</tr>"
+                    + "<tr>"
+                    + " <th>titulo</th>"
+                    + " <td>"+n.getTitulo()+"</td>"
+                    + "</tr>"
+                    + "<tr>"
+                    + " <th>autor</th>"
+                    + " <td>"+n.getAutor()+"</td>"
+                    + "</tr>"
+                    + "<tr>"
+                    + " <th>conteudo</th>"
+                    + " <td>"+n.getConteudo()+"</td>"
+                    + "</tr>"
+                    + "<tr>"
+                    + " <th>data</th>"
+                    + " <td>"+n.getData()+"</td>"
+                    + "</tr>"
+                    +"</table></body></html>";
             return Response.ok(html, MediaType.TEXT_HTML).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
