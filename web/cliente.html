@@ -1,0 +1,162 @@
+<html>
+  <head>
+    <title>Cliente</title>
+    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <style>
+      .campos, #result, button {
+        margin: 2%;
+      }
+    </style>
+    <script type="text/javascript">
+    $(document).ready(function() {
+       $('#criarNoticia').click(function(){
+          $.ajax({
+              type: "POST",
+              data: "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"+$('#criarNoticiaXml').val(),
+              contentType: "application/xml",
+              url: "http://localhost:8080/BlogREST/webresources/blog",
+              success: function(result){
+                  $("#result").html("<div class=\"alert alert-success\" role=\"alert\">Noticia criada com sucesso!</div>");
+              },
+              statusCode: {
+                409: function() {
+                  $("#result").html("<div class=\"alert alert-danger\" role=\"alert\">Noticia ja existe!</div>");
+                },
+                400: function(request) {
+                  $("#result").html("<div class=\"alert alert-danger\" role=\"alert\">Error Status:"+request.status+"<br>Verifique XML</div>");
+                }
+              }
+          });
+       });
+
+       $('#atualizarNoticia').click(function(){
+          $.ajax({
+              type: "PUT",
+              dataType: "json",
+              url: "http://localhost:8080/BlogREST/webresources/blog/"+$('#idNoticiaAtualizacao').val()+"/"+$('#tituloNoticiaAtualizacao').val(),
+              success: function(result){
+                  $("#result").html("<div class=\"alert alert-success\" role=\"alert\">Noticia atualizada com sucesso!</div>");
+                  $("#result").append("<pre lang='json'>"+JSON.stringify(result)+"</pre>");
+              },
+              error: function(result) {
+                  $("#result").html("<div class=\"alert alert-danger\" role=\"alert\">Noticia nao encontrada!</div>");
+              }
+          });
+       });
+
+       $('#removerNoticia').click(function(){
+          $.ajax({
+              type: "DELETE",
+              dataType: "xml",
+              url: "http://localhost:8080/BlogREST/webresources/blog/"+$('#idNoticiaRemocao').val(),
+              success: function(result){
+                  $("#result").html("<div class=\"alert alert-success\" role=\"alert\">Noticia removida com sucesso!</div>");
+                  $("#result").append("<textarea class=\"form-control\" rows=\"5\" style=\"border:none;\" readonly=\"true\">"+new XMLSerializer().serializeToString(result)+"</textarea>");
+              },
+              error: function(result) {
+                  $("#result").html("<div class=\"alert alert-danger\" role=\"alert\">Noticia nao encontrada!</div>");
+              }
+          });
+       });
+
+       $('#verNoticia').click(function(){
+          $.ajax({
+              type: "GET",
+              url: "http://localhost:8080/BlogREST/webresources/blog?id="+$('#idNoticiaVisualizacao').val(),
+              success: function(result){
+                  $("#result").html("<textarea class=\"form-control\" rows=\"2\" style=\"border:none;\" readonly=\"true\">"+result+"</textarea>");
+              },
+              error: function(result) {
+                  $("#result").html("<div class=\"alert alert-danger\" role=\"alert\">Noticia nao encontrada!</div>");
+              }
+          });
+       });
+
+       $('#op').change(function(){
+         $('#result').html('');
+         $('#criacao').hide();
+         $('#atualizacao').hide();
+         $('#remocao').hide();
+         $('#visualizacao').hide();
+         if($(this).val() == 'criar') {
+           $('#criacao').show();
+         } else if($(this).val() == 'atualizar') {
+           $('#atualizacao').show();
+         } else if($(this).val() == 'remover') {
+           $('#remocao').show();
+         } else if($(this).val() == 'ver') {
+           $('#visualizacao').show();
+         }
+       });
+
+    });
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="text-center">
+          <label for="op">Operacao:</label>
+          <select class="form-control" id="op">
+            <option value="criar">Criar</option>
+            <option value="atualizar">Atualizar</option>
+            <option value="remover">Remover</option>
+            <option value="ver">Ver</option>
+          </select>
+          <div id="result"></div>
+        </div>
+      </div>
+
+      <div class="campos">
+        <div class="row" id="criacao">
+          <div class="text-center">
+            <textarea id="criarNoticiaXml" class="form-control" rows="8">
+              <noticia>
+                <autor>Matheus</autor>
+                <conteudo>Noticia teste</conteudo>
+                <data>2016-03-30T18:46:18.045-03:00</data>
+                <id>1</id>
+                <titulo>teste</titulo>
+              </noticia>
+            </textarea>
+            <button class="btn btn-primary" id="criarNoticia">Criar Noticia</button>
+          </div>
+        </div>
+
+        <div class="row" id="atualizacao" style="display:none;">
+          <div class="text-center">
+            <div class="col-md-2">
+              <input type="number" id="idNoticiaAtualizacao" class="form-control" placeholder="id" />
+            </div>
+            <div class="col-md-10">
+              <input type="text" id="tituloNoticiaAtualizacao" class="form-control" placeholder="Novo Titulo" />
+            </div>
+            <button class="btn btn-primary" id="atualizarNoticia">Atualizar Noticia</button>
+          </div>
+        </div>
+
+        <div class="row" id="remocao" style="display:none;">
+          <div class="text-center">
+            <input type="number" id="idNoticiaRemocao" class="form-control" placeholder="id" />
+            <button class="btn btn-primary" id="removerNoticia">Remover Noticia</button>
+          </div>
+        </div>
+
+        <div class="row" id="visualizacao" style="display:none;">
+          <div class="text-center">
+            <input type="number" id="idNoticiaVisualizacao" class="form-control" placeholder="id" />
+            <button class="btn btn-primary" id="verNoticia">Ver Noticia</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </body>
+
+</html>
